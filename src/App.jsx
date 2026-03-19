@@ -5,7 +5,7 @@ import {
     LineChart, Line, ScatterChart, Scatter, ZAxis, Cell, Legend, ComposedChart
 } from 'recharts';
 import {
-    Building, DollarSign, TrendingUp, MapPin, Activity, Hexagon, BarChart3, BookOpen, Cpu
+    Building, DollarSign, TrendingUp, MapPin, Activity, Hexagon, BarChart3, BookOpen, Cpu, Database
 } from 'lucide-react';
 import './App.css';
 
@@ -47,15 +47,18 @@ const parseCSV = (url) => new Promise((resolve, reject) => {
 function App() {
     const [dataV6, setDataV6] = useState([]);
     const [dataV2, setDataV2] = useState([]);
+    const [dataV1, setDataV1] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         Promise.all([
             parseCSV('/property_clusters_extremePrice_removed_v6.csv'),
-            parseCSV('/final_clean_market_dataset1_v2.csv')
-        ]).then(([resV6, resV2]) => {
+            parseCSV('/final_clean_market_dataset1_v2.csv'),
+            parseCSV('/Real_Estate_Sales_10012020_to_Current_v1.csv')
+        ]).then(([resV6, resV2, resV1]) => {
             setDataV6(resV6.data);
             setDataV2(resV2.data);
+            setDataV1(resV1.data);
             setLoading(false);
         }).catch(err => {
             console.error(err);
@@ -222,6 +225,7 @@ function App() {
                     <div className={`nav-item ${activeTab === 'Distributions' ? 'active' : ''}`} onClick={() => setActiveTab('Distributions')}><Activity size={20} /> Price Distributions</div>
                     <div className={`nav-item ${activeTab === 'Neighborhoods' ? 'active' : ''}`} onClick={() => setActiveTab('Neighborhoods')}><Building size={20} /> Neighborhood Analysis</div>
                     <div className={`nav-item ${activeTab === 'PropertyTypes' ? 'active' : ''}`} onClick={() => setActiveTab('PropertyTypes')}><BarChart3 size={20} /> Property Type Insights</div>
+                    <div className={`nav-item ${activeTab === 'Dataset' ? 'active' : ''}`} onClick={() => setActiveTab('Dataset')}><Database size={20} /> Dataset</div>
                 </nav>
             </aside>
 
@@ -551,6 +555,149 @@ function App() {
                                 <h4>Compact Urban Premiums</h4>
                                 <p>CONDOMINIUM units represent the second-largest segment and are disproportionately represented in the high price-per-sqft category, indicating urban condo premiums. The divergence between their appraisal ratio (1.259) suggests these are systematically under-appraised by municipal systems.</p>
                            </div>
+                        </div>
+                    </>
+                )}
+
+                {/* DATASET TAB */}
+                {activeTab === 'Dataset' && (
+                    <>
+                        <div className="section-title"><h3>Datasets Overview</h3></div>
+                        
+                        <div className="glass-card mb-4 fade-in">
+                            <h2>V6 Dataset (Cleaned & Clustered) - Sample</h2>
+                            <p className="text-secondary mb-4">Displaying first 10 rows. Total rows loaded: {dataV6.length}</p>
+                            <div className="data-table-container">
+                                <table className="data-table">
+                                    <thead>
+                                        <tr>
+                                            {dataV6.length > 0 && Object.keys(dataV6[0]).map(key => <th key={key}>{key}</th>)}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {dataV6.slice(0, 10).map((row, i) => (
+                                            <tr key={i}>
+                                                {Object.values(row).map((val, j) => <td key={j}>{val?.toString()}</td>)}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div className="glass-card mb-4 fade-in">
+                            <h2>V1 Dataset (Raw Sales 2020-Current) - Sample</h2>
+                            <p className="text-secondary mb-4">Displaying first 10 rows. Total rows loaded: {dataV1.length}</p>
+                            <div className="data-table-container">
+                                <table className="data-table">
+                                    <thead>
+                                        <tr>
+                                            {dataV1.length > 0 && Object.keys(dataV1[0]).map(key => <th key={key}>{key}</th>)}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {dataV1.slice(0, 10).map((row, i) => (
+                                            <tr key={i}>
+                                                {Object.values(row).map((val, j) => <td key={j}>{val?.toString()}</td>)}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div className="glass-card mb-4 fade-in">
+                            <h2 style={{ marginBottom: '1.5rem' }}>V6 Attribute Dictionary</h2>
+                            <div className="dictionary-grid">
+                                <div className="dict-card">
+                                    <h4>xrCompositeLandUseID</h4>
+                                    <p>Code indicating the composite land use classification mapping to broad property zones.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>xrBuildingTypeID</h4>
+                                    <p>Identifier representing the specific structural type of the building.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>LocationStartNumber</h4>
+                                    <p>The street address number of the property location.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>StreetNameAndWay</h4>
+                                    <p>The designated street name and its suffix (e.g., St, Ave, Way).</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>xrPrimaryNeighborhoodID</h4>
+                                    <p>Unique identifier for the property's primary geographic neighborhood node.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>LandSF</h4>
+                                    <p>Total recorded land area for the property in square feet.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>TotalFinishedArea</h4>
+                                    <p>Total legally finished, livable interior area in square feet.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>LivingUnits</h4>
+                                    <p>Number of distinct residential living units situated on the designated property.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>OwnerLastName</h4>
+                                    <p>The last name of the property owner or primary buying entity.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>SaleDate</h4>
+                                    <p>The exact date the property transaction was officially recorded.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>SalePrice</h4>
+                                    <p>The real, final recorded transaction monetary value.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>TotalAppraisedValue</h4>
+                                    <p>The total appraised value of the property for municipal tax purposes.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>xrSalesValidityID</h4>
+                                    <p>Code indicating whether the sale was considered a valid market, arms-length transaction.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>xrDeedID</h4>
+                                    <p>Deed classification identifier code.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>AssrLandUse</h4>
+                                    <p>Assessor's detailed, designated land use qualitative description.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>WasZeroPrice</h4>
+                                    <p>Boolean indicating if the original dataset's sale price entry was recorded as $0.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>LogSalePrice</h4>
+                                    <p>The natural logarithm of the sale price (used to normalize skewed price distribution).</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>SaleYear / SaleMonth</h4>
+                                    <p>The extracted year and month components of the property sale date.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>PricePerSqft</h4>
+                                    <p>Calculated valuation metric: SalePrice divided by TotalFinishedArea.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>AppraisalRatio</h4>
+                                    <p>Calculated valuation metric: SalePrice divided by TotalAppraisedValue.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>YearMonth</h4>
+                                    <p>A formatted YYYY-MM string of the sale date for precise time series grouping.</p>
+                                </div>
+                                <div className="dict-card">
+                                    <h4>Cluster</h4>
+                                    <p>The assigned K-Means cluster grouping (0: Affordable, 1: Large Premium, 2: Compact High-Value).</p>
+                                </div>
+                            </div>
                         </div>
                     </>
                 )}
